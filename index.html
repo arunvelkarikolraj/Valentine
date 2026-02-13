@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Dhivya ❤️</title>
+
+  <!-- PWA -->
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#e91e63">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="Dhivya ❤️">
+  <link rel="apple-touch-icon" href="apple-touch-icon.png">
+
+  <style>
+    body{
+      margin:0;
+      font-family: Arial, sans-serif;
+      display:flex;
+      justify-content:center;
+      align-items:center;
+      min-height:100vh;
+      background: linear-gradient(135deg,#ffd6e7,#fff0f6);
+      text-align:center;
+      padding: 16px;
+      box-sizing:border-box;
+    }
+    .card{
+      background:white;
+      padding:30px;
+      border-radius:20px;
+      box-shadow:0 10px 40px rgba(0,0,0,0.1);
+      max-width:520px;
+      width:100%;
+    }
+    h1{color:#e91e63;margin-bottom:10px;}
+    .timer{font-size:20px;margin:15px 0;}
+    .note{font-size:18px;margin:20px 0;min-height:60px;}
+    button{
+      background:#e91e63;
+      color:white;
+      border:none;
+      padding:10px 16px;
+      border-radius:10px;
+      cursor:pointer;
+      font-weight:bold;
+    }
+    .small{opacity:.7;font-size:13px;margin-top:10px;}
+  </style>
+</head>
+
+<body>
+  <div class="card">
+    <h1>Happy Valentine’s Day Dhivya ❤️</h1>
+    <p>Made with endless love by <b>Arunvel</b></p>
+
+    <div class="timer" id="timer"></div>
+
+    <div class="note" id="note"></div>
+    <button onclick="newNote()">Show Love Message 💌</button>
+
+    <div class="small">Marriage date: 01 March 2024</div>
+  </div>
+
+<script>
+  // Marriage date (March 1, 2024)
+  const startDate = new Date("2024-03-01T00:00:00").getTime();
+
+  const notes = [
+    "Dhivya, marrying you is the best decision of my life.",
+    "Every day with you feels like a beautiful blessing.",
+    "Your smile is my peace, my happiness, my world.",
+    "Thank you for loving me and making life so special.",
+    "I promise to stand with you forever and always.",
+    "You are not just my wife, you are my heart ❤️"
+  ];
+
+  function newNote(){
+    const n = notes[Math.floor(Math.random()*notes.length)];
+    document.getElementById("note").textContent = n;
+  }
+
+  function updateTimer(){
+    const now = Date.now();
+    let diff = now - startDate;
+
+    const days = Math.floor(diff / (1000*60*60*24));
+    diff -= days*(1000*60*60*24);
+
+    const hours = Math.floor(diff / (1000*60*60));
+    diff -= hours*(1000*60*60);
+
+    const mins = Math.floor(diff / (1000*60));
+    diff -= mins*(1000*60);
+
+    const secs = Math.floor(diff / 1000);
+
+    document.getElementById("timer").innerHTML =
+      `We have been happily married for <br>
+       <b>${days}</b> days, <b>${hours}</b> hours,
+       <b>${mins}</b> minutes, <b>${secs}</b> seconds 💞`;
+  }
+
+  // Register service worker (offline support)
+  if ("serviceWorker" in navigator) {
+    window.addEventListener("load", () => navigator.serviceWorker.register("./sw.js"));
+  }
+
+  newNote();
+  updateTimer();
+  setInterval(updateTimer, 1000);
+</script>
+</body>
+</html>
