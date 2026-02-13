@@ -13,59 +13,151 @@
   <link rel="apple-touch-icon" href="apple-touch-icon.png">
 
   <style>
+    :root{
+      --bg1:#ffd6e7;
+      --bg2:#fff0f6;
+      --accent:#e91e63;
+      --ink:#111;
+      --card:#ffffffcc;
+      --stroke:#ffe0ec;
+    }
+    *{ box-sizing:border-box; }
+
     body{
       margin:0;
-      font-family: Arial, sans-serif;
+      min-height:100vh;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      background: radial-gradient(circle at top, var(--bg2), var(--bg1));
+      text-align:center;
+      padding: 18px;
+      overflow:hidden;
+    }
+
+    /* Soft floating hearts */
+    .hearts{
+      position:fixed;
+      inset:0;
+      pointer-events:none;
+      opacity:.22;
+    }
+    .hearts span{
+      position:absolute;
+      font-size: clamp(16px, 2.8vw, 26px);
+      animation: floatUp linear infinite;
+    }
+    @keyframes floatUp{
+      0%{ transform: translateY(20vh) scale(1); opacity:0; }
+      10%{ opacity:1; }
+      100%{ transform: translateY(-120vh) scale(1.1); opacity:0; }
+    }
+
+    .stage{
+      width: min(860px, 94vw);
+      background: var(--card);
+      border: 1px solid var(--stroke);
+      border-radius: 28px;
+      box-shadow: 0 18px 60px rgba(0,0,0,.10);
+      padding: clamp(22px, 4vw, 34px);
+      backdrop-filter: blur(10px);
+    }
+
+    .title{
+      margin:0 0 12px;
+      font-size: clamp(20px, 3.8vw, 32px);
+      color: var(--accent);
+      font-weight: 900;
+      letter-spacing: .2px;
+    }
+
+    .question{
+      font-size: clamp(24px, 5.2vw, 46px);
+      line-height: 1.12;
+      font-weight: 950;
+      color: var(--ink);
+      margin: 8px 0 16px;
+    }
+
+    .note{
+      margin: 6px 0 0;
+      padding: clamp(18px, 3.8vw, 28px);
+      border-radius: 22px;
+      border: 2px solid rgba(233, 30, 99, .22);
+      background: linear-gradient(135deg, #fff, #fff7fb);
+      box-shadow: 0 10px 30px rgba(233,30,99,.10);
+      font-size: clamp(22px, 4.8vw, 46px);
+      line-height: 1.14;
+      font-weight: 950;
+      color: var(--ink);
+    }
+
+    .btnRow{
       display:flex;
       justify-content:center;
-      align-items:center;
-      min-height:100vh;
-      background: linear-gradient(135deg,#ffd6e7,#fff0f6);
-      text-align:center;
-      padding: 16px;
-      box-sizing:border-box;
+      gap:12px;
+      flex-wrap:wrap;
+      margin-top: 10px;
     }
-    .card{
-      background:white;
-      padding:30px;
-      border-radius:20px;
-      box-shadow:0 10px 40px rgba(0,0,0,0.1);
-      max-width:520px;
-      width:100%;
-    }
-    h1{color:#e91e63;margin-bottom:10px;}
-    .timer{font-size:20px;margin:15px 0;}
-    .note{font-size:18px;margin:20px 0;min-height:60px;}
+
     button{
-      background:#e91e63;
-      color:white;
-      border:none;
-      padding:10px 16px;
-      border-radius:10px;
+      border:0;
+      border-radius: 16px;
+      padding: 12px 18px;
       cursor:pointer;
-      font-weight:bold;
+      font-weight: 900;
+      font-size: 16px;
+      background: var(--accent);
+      color: white;
+      box-shadow: 0 12px 22px rgba(233,30,99,.22);
+      min-width: 110px;
     }
-    .small{opacity:.7;font-size:13px;margin-top:10px;}
+    button.no{
+      background: #111;
+      box-shadow:none;
+    }
+
+    .hint{
+      margin: 14px 0 0;
+      opacity: .68;
+      font-size: 13px;
+      user-select:none;
+    }
+
+    .hidden{ display:none !important; }
+
+    @media (prefers-reduced-motion: reduce){
+      .hearts span{ animation: none; }
+    }
   </style>
 </head>
 
 <body>
-  <div class="card">
-    <h1>Happy Valentine’s Day Dhivya ❤️</h1>
-    <p>Made with endless love by <b>Arunvel</b></p>
+  <div class="hearts" aria-hidden="true" id="hearts"></div>
 
-    <div class="timer" id="timer"></div>
+  <main class="stage" role="main">
+    <h1 class="title">Dhivya ❤️</h1>
 
-    <div class="note" id="note"></div>
-    <button onclick="newNote()">Show Love Message 💌</button>
+    <!-- Screen 1: Question -->
+    <section id="screenQuestion">
+      <div class="question">Will you be my Valentine? 💘</div>
+      <div class="btnRow">
+        <button id="btnYes" type="button">Yes 💖</button>
+        <button id="btnNo" class="no" type="button">No 🙈</button>
+      </div>
+      <div class="hint" id="noHint" class="hint hidden"></div>
+    </section>
 
-    <div class="small">Marriage date: 01 March 2024</div>
-  </div>
+    <!-- Screen 2: Full-page message only -->
+    <section id="screenMessage" class="hidden">
+      <div class="note" id="note" aria-live="polite"></div>
+      <div class="hint">Tip: tap anywhere for the next message.</div>
+    </section>
+  </main>
 
 <script>
-  // Marriage date (March 1, 2024)
-  const startDate = new Date("2024-03-01T00:00:00").getTime();
-
+  // Messages shown AFTER "Yes"
   const notes = [
     "Dhivya, marrying you is the best decision of my life.",
     "Every day with you feels like a beautiful blessing.",
@@ -75,40 +167,70 @@
     "You are not just my wife, you are my heart ❤️"
   ];
 
+  const screenQuestion = document.getElementById("screenQuestion");
+  const screenMessage  = document.getElementById("screenMessage");
+  const noteEl = document.getElementById("note");
+
   function newNote(){
-    const n = notes[Math.floor(Math.random()*notes.length)];
-    document.getElementById("note").textContent = n;
+    const n = notes[Math.floor(Math.random() * notes.length)];
+    noteEl.textContent = n;
   }
 
-  function updateTimer(){
-    const now = Date.now();
-    let diff = now - startDate;
-
-    const days = Math.floor(diff / (1000*60*60*24));
-    diff -= days*(1000*60*60*24);
-
-    const hours = Math.floor(diff / (1000*60*60));
-    diff -= hours*(1000*60*60);
-
-    const mins = Math.floor(diff / (1000*60));
-    diff -= mins*(1000*60);
-
-    const secs = Math.floor(diff / 1000);
-
-    document.getElementById("timer").innerHTML =
-      `We have been happily married for <br>
-       <b>${days}</b> days, <b>${hours}</b> hours,
-       <b>${mins}</b> minutes, <b>${secs}</b> seconds 💞`;
+  function goToMessages(){
+    screenQuestion.classList.add("hidden");
+    screenMessage.classList.remove("hidden");
+    newNote();
   }
+
+  // Button behaviors
+  document.getElementById("btnYes").addEventListener("click", (e) => {
+    e.stopPropagation();
+    goToMessages();
+  });
+
+  document.getElementById("btnNo").addEventListener("click", (e) => {
+    e.stopPropagation();
+    // Hide NO button so only YES remains (as requested)
+    const noBtn = document.getElementById("btnNo");
+    noBtn.classList.add("hidden");
+
+    // Optional little playful nudge
+    const yesBtn = document.getElementById("btnYes");
+    yesBtn.textContent = "Yes 💖 (Only option 😄)";
+  });
+
+  // Tap anywhere to change message (only after Yes)
+  document.addEventListener("click", (e) => {
+    if (screenMessage.classList.contains("hidden")) return; // still on question
+    newNote();
+  });
+
+  // Keyboard shortcut (after Yes)
+  document.addEventListener("keydown", (e) => {
+    if (screenMessage.classList.contains("hidden")) return;
+    if (e.key === " " || e.key === "Enter") {
+      e.preventDefault();
+      newNote();
+    }
+  });
 
   // Register service worker (offline support)
   if ("serviceWorker" in navigator) {
     window.addEventListener("load", () => navigator.serviceWorker.register("./sw.js"));
   }
 
-  newNote();
-  updateTimer();
-  setInterval(updateTimer, 1000);
+  // Decorative floating hearts
+  const hearts = document.getElementById("hearts");
+  const heartChars = ["❤️","💗","💞","💕"];
+  for (let i = 0; i < 14; i++){
+    const s = document.createElement("span");
+    s.textContent = heartChars[Math.floor(Math.random()*heartChars.length)];
+    s.style.left = Math.floor(Math.random()*100) + "vw";
+    s.style.top = (60 + Math.random()*50) + "vh";
+    s.style.animationDuration = (10 + Math.random()*10) + "s";
+    s.style.animationDelay = (-Math.random()*10) + "s";
+    hearts.appendChild(s);
+  }
 </script>
 </body>
 </html>
