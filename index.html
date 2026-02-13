@@ -366,8 +366,11 @@ Will you be my forever Valentine? ❤️
 
   // Service worker
   if ("serviceWorker" in navigator) {
-    window.addEventListener("load", () => navigator.serviceWorker.register("./sw.js"));
-  }
+  window.addEventListener("load", async () => {
+    const reg = await navigator.serviceWorker.register("./sw.js");
+    reg.update();
+  });
+}
 </script>
 </body>
 </html>
