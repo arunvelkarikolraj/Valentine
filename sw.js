@@ -1,18 +1,34 @@
-self.addEventListener('install', (event) => {
+const CACHE_NAME = "valentine-v3"; // <-- change this every time you update
+
+self.addEventListener("install", (event) => {
+  self.skipWaiting();
   event.waitUntil(
-    caches.open('valentine-v1').then((cache) => cache.addAll([
-      './',
-      './index.html',
-      './manifest.json',
-      './sw.js',
-      './icon-192.png',
-      './icon-512.png',
-      './apple-touch-icon.png'
-    ]))
+    caches.open(CACHE_NAME).then((cache) =>
+      cache.addAll([
+        "./",
+        "./index.html",
+        "./manifest.json",
+        "./sw.js",
+        "./icon-192.png",
+        "./icon-512.png",
+        "./apple-touch-icon.png",
+        "./music.mp3"
+      ])
+    )
   );
 });
 
-self.addEventListener('fetch', (event) => {
+self.addEventListener("activate", (event) => {
+  event.waitUntil(
+    (async () => {
+      const keys = await caches.keys();
+      await Promise.all(keys.map((k) => (k !== CACHE_NAME ? caches.delete(k) : null)));
+      await self.clients.claim();
+    })()
+  );
+});
+
+self.addEventListener("fetch", (event) => {
   event.respondWith(
     caches.match(event.request).then((resp) => resp || fetch(event.request))
   );
